@@ -1,0 +1,23 @@
+h1, h2 {
+    margin: 3px 0 3px 0;
+}
+
+#no-date-info {
+    font-size: 0.6em;
+    background-color: #f3dada;
+    color: #690000;
+    padding: 2px;
+    margin-bottom: 2px;
+}
+
+#all-activity-dates {
+    margin-bottom: 2px;
+}
+
+#all-activity-dates > a {
+    background-color: #daf3da;
+    padding: 1px;
+    font-size: 0.7em;
+}
+
+

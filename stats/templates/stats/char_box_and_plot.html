@@ -1,0 +1,37 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'stats/char_box_and_plot.css' %}">
+
+{% for character, activity in character_activity_list %}
+    <div class="char-box-and-plot">
+        <div class="char-box">
+            <div class="char-box-img"
+                 style="background-image:
+                         {% if character.avatar_url %}
+                             url('https://micc.garmory-cdn.cloud/obrazki/postacie{{ character.avatar_url }}'); background-size: 256px 384px;
+                         {% else %}
+                             url('https://unia.margonem.pl/img/def-npc.gif'); background-size: 64px 96px;
+                         {% endif %}">
+            </div>
+
+            <div class="char-box-info">
+                <span class="char-box-nick">{{ character.nick_or_null }}</span>
+                <span class="char-box-lvl-prof">{{ character.lvl_prof_or_null }}</span>
+                <div class="char-box-world">{{ character.world }}</div>
+                <div class="char-box-aid">[{{ character.account_id }}][{{ character.cid }}]</div>
+                {% if activity %}
+                    <div class="char-box-activity-time">
+                        {{ activity.activity_time }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if activity %}
+            <div class="activity-plot">
+                <div class="activity-plot-baseline"></div>
+{#                {{ activity.activity_plot_hours|safe }}#}
+                {{ activity.activity_plot|safe }}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}

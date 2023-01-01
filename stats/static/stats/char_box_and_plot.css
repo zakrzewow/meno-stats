@@ -1,0 +1,97 @@
+.char-box-and-plot {
+    height: 98px;
+    width: 862px;
+    display: flex;
+    margin-bottom: 3px;
+}
+
+.char-box-and-plot:last-of-type {
+    margin-bottom: 40px;
+}
+
+.char-box {
+    height: 96px;
+    width: 250px;
+    border: 1px solid #006900;
+    display: flex;
+    position: relative;
+}
+
+.char-box-img {
+    width: 64px;
+    height: 96px;
+    border-right: 1px solid #006900;
+    image-rendering: pixelated;
+}
+
+.char-box-info {
+    padding: 4px;
+    width: 180px;
+}
+
+.char-box-nick {
+    font-weight: bold;
+}
+
+.char-box-lvl-prof {
+    float: right;
+    font-size: 0.9em;
+}
+
+.char-box-world {
+    font-size: 0.8em;
+    text-transform: capitalize;
+}
+
+.char-box-aid {
+    font-size: 0.6em;
+    position: absolute;
+    bottom: 4px;
+    user-select: text;
+}
+
+.char-box-activity-time {
+    position: absolute;
+    bottom: 20px;
+    right: 4px;
+}
+
+.activity-plot-line {
+    position: absolute;
+    height: 30px;
+    top: 34px;
+    background-color: #006900;
+}
+
+.activity-plot-baseline {
+    position: absolute;
+    height: 30px;
+    top: 34px;
+    width: 600px;
+    left: 10px;
+    background-color: #daf3da;
+}
+
+.activity-plot {
+    width: 610px;
+    height: 98px;
+    position: relative;
+}
+
+.activity-plot-hour-line {
+    width: 1px;
+    height: 30px;
+    position: absolute;
+    top: 34px;
+    background-color: white;
+}
+
+.activity-plot-hour {
+    height: 10px;
+    position: absolute;
+    top: 22px;
+    background-color: white;
+    color: #006900;
+    font-size: 11px;
+    text-align: center;
+}

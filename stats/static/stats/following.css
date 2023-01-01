@@ -1,0 +1,7 @@
+#following-navbar {
+    border-bottom: 5px solid #006900;
+}
+
+#following-navbar:hover {
+    border-bottom: 5px solid #006900 !important;
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Stats</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stats/base.css' %}">
+</head>
+<body>
+
+<nav>
+    <a id="account-search-navbar" href="{% url 'stats:index' %}">Szukaj konta</a>
+    <a id="following-navbar" href="{% url 'stats:following' %}">Obserwowane konta</a>
+    <a id="login-navbar" href="#">Zaloguj sie</a>
+</nav>
+
+{% block content %}Pusto :({% endblock %}
+
+<footer>
+    Nieoficjalna strona fanów gry <a target="_blank" href="https://www.margonem.pl/">Margonem MMORPG</a><br>
+    Grafiki avatarów postaci są własnością Garmory sp. z o.o.
+</footer>
+</body>
+</html>

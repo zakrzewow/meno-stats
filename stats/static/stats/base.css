@@ -1,0 +1,70 @@
+body {
+    background-color: #ffffff;
+    width: 862px;
+    margin: auto;
+    padding: 0;
+    font-family: Andale Mono, monospace;
+    font-size: 1.2em;
+    font-stretch: semi-expanded;
+    color: #006900;
+}
+
+*::selection {
+    background: #daf3da;
+}
+
+div, h1, h2, h3, h4, a, label, footer, nav {
+    user-select: none;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:link {
+    color: inherit;
+}
+
+a:visited {
+    color: inherit;
+}
+
+a:active {
+    color: inherit;
+}
+
+nav {
+    width: 100%;
+    height: 40px;
+    margin: 20px 0 20px 0;
+}
+
+nav > a {
+    float: left;
+    padding: 10px;
+    text-align: center;
+}
+
+nav > a:hover {
+    border-bottom: 3px solid #006900;
+    background-color: #daf3da;
+}
+
+nav > a:last-child {
+    float: right;
+}
+
+nav > a:not(:last-child) {
+    margin-right: 20px;
+}
+
+footer {
+    background-color: white;
+    position: fixed;
+    bottom: 0;
+    width: 862px;
+    padding: 3px;
+    text-align: center;
+    font-size: 0.7em;
+}

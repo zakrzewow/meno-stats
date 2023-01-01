@@ -1,0 +1,23 @@
+{% extends "stats/base.html" %}
+{% load static %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'stats/index.css' %}">
+
+    <form action="{% url 'stats:index' %}" method="post">
+        {% csrf_token %}
+        <table>{{ form.as_table }}
+            <tr>
+                <td colspan="2"><input type="submit" value="Szukaj!"></td>
+            </tr>
+        </table>
+    </form>
+
+    {% if top %}
+        <h4>Top 5 aktywności za dzień {{ top.date|date:"d-m-Y" }}:</h4>
+        {% include "stats/char_box_and_plot.html" with character_activity_list=top.character_activity_list only %}
+    {% endif %}
+
+    <script src="{% static 'stats/index.js' %}"></script>
+{% endblock %}
