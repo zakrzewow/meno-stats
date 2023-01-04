@@ -89,8 +89,8 @@ class Activity(models.Model):
         :return: reprezentację aktywności w postaci napisu X godz. Y min.
         """
         total_minutes = self.total_minutes
-        hours = total_minutes // 60
-        minutes = total_minutes % 60
+        hours = int(total_minutes // 60)
+        minutes = int(total_minutes % 60)
         str_ = f"{minutes} min."
         if hours > 0:
             str_ = f"{hours} godz. " + str_
@@ -98,7 +98,7 @@ class Activity(models.Model):
 
     @property
     def activity_plot(self):
-        plot_width = 600
+        plot_width = 720
         bits = self.__bits_unpacked
         start_end_list = self.__get_start_end_list(bits)
 

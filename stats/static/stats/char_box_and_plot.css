@@ -1,6 +1,6 @@
 .char-box-and-plot {
     height: 98px;
-    width: 862px;
+    width: 1032px;
     display: flex;
     margin-bottom: 3px;
 }
@@ -11,7 +11,7 @@
 
 .char-box {
     height: 96px;
-    width: 250px;
+    width: 300px;
     border: 1px solid #006900;
     display: flex;
     position: relative;
@@ -26,11 +26,12 @@
 
 .char-box-info {
     padding: 4px;
-    width: 180px;
+    width: 230px;
 }
 
 .char-box-nick {
     font-weight: bold;
+    font-size: 0.9em;
 }
 
 .char-box-lvl-prof {
@@ -67,13 +68,13 @@
     position: absolute;
     height: 30px;
     top: 34px;
-    width: 600px;
+    width: 720px;
     left: 10px;
     background-color: #daf3da;
 }
 
 .activity-plot {
-    width: 610px;
+    width: 730px;
     height: 98px;
     position: relative;
 }
