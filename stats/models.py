@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import numpy as np
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -66,7 +67,7 @@ class Activity(models.Model):
     Gracz w jednym momencie może być grać tylko na jednej postaci
     Aktywność jest pobierana ze strony pokazującej aktualnie zalogowanych graczy: https://www.margonem.pl/stats
     Ta strona aktualizuje się co minutę
-    Aktywność gracza w ciągu dnia jest reprezenowana jako ciąg 180 bajtów (1440 minut) - jeden dzień zawiera 1440 minut,
+    Aktywność gracza w ciągu dnia jest reprezentowana jako ciąg 180 bajtów (1440 bitów) - jeden dzień zawiera 1440 minut,
     1 oznacza że gracz był zalogowny i grał na danej postaci, natomiast 0 że nie był
     """
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
@@ -123,6 +124,10 @@ class Activity(models.Model):
         return "\n".join(div_list)
 
     @property
+    def bits_str(self) -> str:
+        return "".join(self.__bits_unpacked.astype(str))
+
+    @property
     def __bits_unpacked(self) -> np.ndarray:
         return np.unpackbits(np.asarray(bytearray(self.activity)))
 
@@ -142,3 +147,16 @@ class Activity(models.Model):
         if start is not None:
             start_end_list.append((start, len(bits)))
         return start_end_list
+
+
+class Following(models.Model):
+    """
+    Reprezentuje relację obserwowania konta gracza przez użytkownika strony
+    Jeden użytkownik może obserwować wiele kont
+    Konto może być obserwowane przez wielu użytkowników
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user} - {self.account}"

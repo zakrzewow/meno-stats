@@ -6,8 +6,15 @@
 
     <h1>ID konta: {{ account.aid }}</h1>
     <h2>Aktywność: {{ real_activity_date|date:"d-m-Y" }}</h2>
+
+    {% if unauthenticated_follow_attempt %}
+        <div class="warning">
+            Użyszkodniku, <a href="{% url 'stats:login' %}">zaloguj się</a>, żeby dodać konto do listy obserwowanych!
+        </div>
+    {% endif %}
+
     {% if real_activity_date != activity_date %}
-        <div id="no-date-info">
+        <div class="warning">
             <em>{{ activity_date|date:"d-m-Y" }} nie odnotowano aktywności!</em>
             Aby ukryć tą wiadomość kliknij
             <a href="{% url 'stats:detail' account.aid real_activity_date %}"><em>tutaj</em></a>.
@@ -21,4 +28,10 @@
     </div>
 
     {% include "stats/char_box_and_plot.html" with character_activity_list=character_activity_list only %}
+
+    <div id="export">
+        <a href="{% url 'stats:export' account.aid %}" download>Pobierz dane konta w formacie XML</a>
+        <br>
+        <a href="{% static 'stats/meno-stats.xsl' %}" download>Pobierz plik XSL</a>
+    </div>
 {% endblock %}

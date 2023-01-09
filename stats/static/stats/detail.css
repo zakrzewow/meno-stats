@@ -2,12 +2,21 @@ h1, h2 {
     margin: 3px 0 3px 0;
 }
 
-#no-date-info {
+.warning {
     font-size: 0.6em;
     background-color: #f3dada;
     color: #690000;
     padding: 2px;
     margin-bottom: 2px;
+}
+
+.warning > a {
+    color: inherit;
+    text-decoration: underline dashed #690000 1px;
+}
+
+.warning > a:hover {
+    text-decoration: underline  #690000 2px;
 }
 
 #all-activity-dates {
@@ -20,4 +29,7 @@ h1, h2 {
     font-size: 0.7em;
 }
 
-
+#export {
+    font-size: 0.7em;
+    margin: 20px 0 50px 0;
+}

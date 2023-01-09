@@ -1,4 +1,4 @@
-const form = document.querySelector("form[action='/stats/']")
+const form = document.querySelector("form")
 const accountIdInput = document.getElementById("id_account_id")
 
 function trim(s) {
@@ -17,7 +17,7 @@ function showErrorMessage(message) {
     const td = accountIdInput.parentElement
     const ul = document.createElement("ul")
     const li = document.createElement("li")
-    for (const ulChild of td.querySelectorAll("ul")){
+    for (const ulChild of td.querySelectorAll("ul")) {
         td.removeChild(ulChild)
     }
     ul.classList.add("errorlist")

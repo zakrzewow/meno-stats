@@ -5,3 +5,34 @@
 #following-navbar:hover {
     border-bottom: 5px solid #006900 !important;
 }
+
+#following-table {
+    margin: auto;
+    border-spacing: 50px 0;
+    border-bottom: 1px solid #006900;
+    padding: 20px;
+}
+
+#following-table th {
+    text-align: left;
+}
+
+form label {
+    margin-right: 50px;
+}
+
+form tr:first-child {
+    font-size: 1.1em;
+    height: 70px;
+}
+
+form td,
+form input[type="text"],
+form input[type="submit"] {
+    width: 200px;
+}
+
+form input[type="submit"] {
+    font-size: 1em;
+    margin-bottom: 50px;
+}

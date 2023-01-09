@@ -12,7 +12,11 @@
 <nav>
     <a id="account-search-navbar" href="{% url 'stats:index' %}">Szukaj konta</a>
     <a id="following-navbar" href="{% url 'stats:following' %}">Obserwowane konta</a>
-    <a id="login-navbar" href="#">Zaloguj sie</a>
+    {% if user.is_authenticated %}
+        <a id="logout-navbar" href="{% url 'stats:logout' %}">Wyloguj: {{ user.username }}</a>
+    {% else %}
+        <a id="login-navbar" href="{% url 'stats:login' %}">Logowanie</a>
+    {% endif %}
 </nav>
 
 {% block content %}Pusto :({% endblock %}
