@@ -1,0 +1,21 @@
+#login-navbar {
+    border-bottom: 5px solid #006900;
+}
+
+#login-navbar:hover {
+    border-bottom: 5px solid #006900 !important;
+}
+
+form {
+    height: 230px;
+}
+
+.errorlist {
+    font-size: 0.9em;
+}
+
+#sign-up {
+    margin: 0 15px 0 0;
+    font-size: 0.8em;
+    text-align: center;
+}
