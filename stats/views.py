@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator, default_token_generator
 from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db.models import Min, Max
 from django.http import HttpResponse, Http404
@@ -18,8 +18,14 @@ from .forms import SearchAccountForm, FollowAccountForm, MyAuthenticationForm, R
 from .models import Account, Character, Activity, Following
 
 
-def index(request):
-    if request.method == 'POST':
+class IndexView(View):
+    http_method_names = ['get', 'post']
+
+    def get(self, request):
+        context = self.get_context_data(request)
+        return render(request, 'stats/index.html', context)
+
+    def post(self, request):
         form = SearchAccountForm(request.POST)
         if form.is_valid():
             account_id = form.cleaned_data['account_id']
@@ -29,34 +35,49 @@ def index(request):
             request.session["follow"] = follow
             request.session["no_date_option"] = no_date_option
             return redirect('stats:detail', aid=account_id, activity_date=activity_date)
-    else:
+
+        context = self.get_context_data(request, form)
+        return render(request, 'stats/index.html', context)
+
+    def get_context_data(self, request, form: SearchAccountForm = None):
+        context = {
+            'form': self.get_form(request, form),
+            'top': self.get_top_ranking()
+        }
+        return context
+
+    @staticmethod
+    def get_form(request, form: SearchAccountForm = None):
+        # formularz częściowo wypełniony
+        if form is not None:
+            return form
+
         # przekierowanie z błędnego 'details'
         if 'account_not_exists' in request.session:
             aid, activity_date = request.session["account_not_exists"].values()
             form = SearchAccountForm({'account_id': aid, 'activity_date': activity_date, 'no_date_option': 'last'})
-            form.add_error('account_id', f'Konta z ID {aid} nie ma w bazie!')
+            # form.add_error('account_id', f'Konta z ID {aid} nie ma w bazie!')
             request.session.pop('account_not_exists', None)
         # normalne wejście na stronę
         else:
             form = SearchAccountForm(initial={'account_id': 390135, 'activity_date': date(2022, 12, 28)})
-            # form = SearchAccountForm(initial={'activity_date': date(2022, 12, 28)})
+
         form.fields['activity_date'].widget.attrs.update({
             'min': '2022-12-28',
             'max': date.today()
         })
+        return form
 
-    # ranking
-    latest_activity_date = Activity.objects.aggregate(Max('date')).get('date__max')
-    activity_query_set = Activity.objects.filter(date=latest_activity_date)
-    top_activity = sorted(activity_query_set, key=lambda a: a.total_minutes, reverse=True)[:5]
-    top_character_activity = [(activity.character, activity) for activity in top_activity]
-    top_ranking = {
-        'date': latest_activity_date,
-        'character_activity_list': top_character_activity
-    }
-
-    context = {'form': form, 'top': top_ranking}
-    return render(request, 'stats/index.html', context)
+    @staticmethod
+    def get_top_ranking():
+        latest_activity_date = Activity.objects.aggregate(Max('date')).get('date__max')
+        activity_query_set = Activity.objects.filter(date=latest_activity_date)
+        top_activity = sorted(activity_query_set, key=lambda a: a.total_minutes, reverse=True)[:5]
+        top_character_activity = [(activity.character, activity) for activity in top_activity]
+        return {
+            'date': latest_activity_date,
+            'character_activity_list': top_character_activity
+        }
 
 
 class FollowingView(View):

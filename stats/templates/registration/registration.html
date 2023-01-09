@@ -1,9 +1,6 @@
 {% extends "stats/base.html" %}
 
 {% block content %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'registration/registration.css' %}">
-
     <form method="post" action="{% url 'stats:register' %}">
         {% csrf_token %}
         <table>{{ form.as_table }}

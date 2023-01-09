@@ -11,6 +11,7 @@ class DateInput(forms.DateField):
 
 
 def validate_account_id(value: int):
+    """Funkcja sprawdza, czy konto o danym ID znajduje się w bazie"""
     try:
         Account.objects.get(pk=value)
     except Account.DoesNotExist:
@@ -18,6 +19,8 @@ def validate_account_id(value: int):
 
 
 class AccountIdField(forms.IntegerField):
+    """Pole do wprowadzania ID konta"""
+
     def __init__(self, **kwargs):
         super().__init__(
             label='ID konta',
@@ -34,6 +37,7 @@ class AccountIdField(forms.IntegerField):
 
 
 class SearchAccountForm(forms.Form):
+    """Formularz do wyszukiwania konta po ID oraz dacie aktywności"""
     account_id = AccountIdField()
     activity_date = forms.DateField(
         label='Dzień',
@@ -54,10 +58,12 @@ class SearchAccountForm(forms.Form):
 
 
 class FollowAccountForm(forms.Form):
+    """Formularz do obserwowania konta o danym ID"""
     account_id = AccountIdField()
 
 
 class MyAuthenticationForm(AuthenticationForm):
+    """Formularz do logowania użytkownika"""
     username = UsernameField(
         label='Login',
         widget=forms.TextInput(attrs={'autofocus': True})
@@ -70,6 +76,7 @@ class MyAuthenticationForm(AuthenticationForm):
 
 
 class RegistrationForm(UserCreationForm):
+    """Formularz do rejestracji użytkowanika"""
     password1 = forms.CharField(
         label='Hasło',
         strip=False,

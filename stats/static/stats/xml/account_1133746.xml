@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <?xml-stylesheet type="text/xsl" href="meno-stats.xsl"?>
-{# tego pliku nie powinno tutaj byc (w plikach statycznych) - pogladawy, do prezentacji #}
+{# tego pliku nie powinno tutaj byc (w plikach projektu) - pogladawy, do prezentacji #}
 <stats>
     <account>
         <aid>1133746</aid>

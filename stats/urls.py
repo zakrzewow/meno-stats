@@ -1,12 +1,13 @@
 from django.urls import path, register_converter
 
 from . import views, converters
-from django.contrib.auth import urls
+
 register_converter(converters.DateConverter, 'date')
+
 
 app_name = 'stats'
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.IndexView.as_view(), name='index'),
     path('following', views.FollowingView.as_view(), name='following'),
     path('unfollow/<int:aid>', views.UnfollowView.as_view(), name='unfollow'),
     path('<int:aid>/<date:activity_date>', views.detail, name='detail'),

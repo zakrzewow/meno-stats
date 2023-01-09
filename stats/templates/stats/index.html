@@ -3,7 +3,7 @@
 
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'stats/index.css' %}">
+    <link rel="stylesheet" href="{% static 'stats/css/index.css' %}">
 
     <form action="{% url 'stats:index' %}" method="post">
         {% csrf_token %}
@@ -19,5 +19,5 @@
         {% include "stats/char_box_and_plot.html" with character_activity_list=top.character_activity_list only %}
     {% endif %}
 
-    <script src="{% static 'stats/index.js' %}"></script>
+    <script src="{% static 'stats/js/validate_account_id.js' %}"></script>
 {% endblock %}

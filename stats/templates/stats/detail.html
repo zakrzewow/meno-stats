@@ -2,7 +2,7 @@
 
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'stats/detail.css' %}">
+    <link rel="stylesheet" href="{% static 'stats/css/detail.css' %}">
 
     <h1>ID konta: {{ account.aid }}</h1>
     <h2>Aktywność: {{ real_activity_date|date:"d-m-Y" }}</h2>
@@ -32,6 +32,6 @@
     <div id="export">
         <a href="{% url 'stats:export' account.aid %}" download>Pobierz dane konta w formacie XML</a>
         <br>
-        <a href="{% static 'stats/meno-stats.xsl' %}" download>Pobierz plik XSL</a>
+        <a href="{% static 'stats/xml/meno-stats.xsl' %}" download>Pobierz plik XSL</a>
     </div>
 {% endblock %}

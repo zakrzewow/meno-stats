@@ -2,7 +2,7 @@
 
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'stats/following.css' %}">
+    <link rel="stylesheet" href="{% static 'stats/css/following.css' %}">
 
     {% if user.is_authenticated %}
         <table id="following-table">
@@ -33,7 +33,6 @@
             {% endif %}
         </table>
 
-
         <form action="{% url 'stats:following' %}" method="post">
             {% csrf_token %}
             <table>{{ form.as_table }}
@@ -47,5 +46,5 @@
         <p>Tylko zalogowani użytkownicy mogą obserwować konta. <a href="{% url 'stats:login' %}">Zaloguj się!</a></p>
     {% endif %}
 
-    <script src="{% static 'stats/index.js' %}"></script>
+    <script src="{% static 'stats/js/validate_account_id.js' %}"></script>
 {% endblock %}
