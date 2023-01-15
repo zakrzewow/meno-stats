@@ -15,7 +15,7 @@ class Command(BaseCommand):
     - tabeli *stats_activity* z aktywnością graczy
     - tabeli *stats_character* z danymi o postaciach
 
-    Uruchomienie: `py .\manage.py sstats`
+    Uruchomienie: `py .\manage.py scrap-stats`
     """
     def handle(self, *args, **options):
         last_now = None
@@ -42,20 +42,22 @@ class Command(BaseCommand):
                 print(f"Minuta {minute} - {len(profiles)} aktywnych graczy")
             # w międzyczasie uzupełniamy dane o profilach
             else:
-                char = Character.objects.filter(lvl=None)[0]
-                aid = char.account.aid
-                cid = char.cid
-                world = char.world
-                r2 = requests.get(f"https://www.margonem.pl/profile/view,{aid}#char_{cid},{world}")
-                soup = BeautifulSoup(r2.text, 'html.parser').find_all(attrs={"data-id": cid})[0]
-                avatar_url = soup.find("span", attrs={"class": "cimg"})["style"][70:-3]
-                nick = soup.find("input", attrs={"class": "chnick"})["value"]
-                lvl = soup.find("input", attrs={"class": "chlvl"})["value"]
-                prof = soup.find("input", attrs={"class": "chprof"})["value"]
+                char_query_set = Character.objects.filter(lvl=None)
+                if char_query_set.exists():
+                    char = char_query_set[0]
+                    aid = char.account.aid
+                    cid = char.cid
+                    world = char.world
+                    r2 = requests.get(f"https://www.margonem.pl/profile/view,{aid}#char_{cid},{world}")
+                    soup = BeautifulSoup(r2.text, 'html.parser').find_all(attrs={"data-id": cid})[0]
+                    avatar_url = soup.find("span", attrs={"class": "cimg"})["style"][70:-3]
+                    nick = soup.find("input", attrs={"class": "chnick"})["value"]
+                    lvl = soup.find("input", attrs={"class": "chlvl"})["value"]
+                    prof = soup.find("input", attrs={"class": "chprof"})["value"]
 
-                char.avatar_url = avatar_url
-                char.nick = nick
-                char.lvl = lvl
-                char.prof = prof
-                char.save()
+                    char.avatar_url = avatar_url
+                    char.nick = nick
+                    char.lvl = lvl
+                    char.prof = prof
+                    char.save()
             time.sleep(1)

@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
-from django.db.models import Min, Max
+from django.db.models import Min, Max, QuerySet
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils.encoding import force_bytes
@@ -19,6 +19,10 @@ from .models import Account, Character, Activity, Following
 
 
 class IndexView(View):
+    """
+    Widok reprezentujący główną stronę
+    Zawiera formularz do wyszukiwania konta oraz ranking top 5 aktywności
+    """
     http_method_names = ['get', 'post']
 
     def get(self, request):
@@ -26,6 +30,10 @@ class IndexView(View):
         return render(request, 'stats/index.html', context)
 
     def post(self, request):
+        """
+        Obsługuje formularz wyszukiwania konta
+        Kiedy dane formularza są poprawne, przekierowuje na szczegółowy widok dla podanego konta i daty
+        """
         form = SearchAccountForm(request.POST)
         if form.is_valid():
             account_id = form.cleaned_data['account_id']
@@ -56,7 +64,6 @@ class IndexView(View):
         if 'account_not_exists' in request.session:
             aid, activity_date = request.session["account_not_exists"].values()
             form = SearchAccountForm({'account_id': aid, 'activity_date': activity_date, 'no_date_option': 'last'})
-            # form.add_error('account_id', f'Konta z ID {aid} nie ma w bazie!')
             request.session.pop('account_not_exists', None)
         # normalne wejście na stronę
         else:
@@ -70,6 +77,9 @@ class IndexView(View):
 
     @staticmethod
     def get_top_ranking():
+        """
+        Tworzy ranking pięcu postaci, które wykazały największą aktywność dla najnowszej daty aktywności w bazie
+        """
         latest_activity_date = Activity.objects.aggregate(Max('date')).get('date__max')
         activity_query_set = Activity.objects.filter(date=latest_activity_date)
         top_activity = sorted(activity_query_set, key=lambda a: a.total_minutes, reverse=True)[:5]
@@ -81,6 +91,10 @@ class IndexView(View):
 
 
 class FollowingView(View):
+    """
+    Widok reprezentujący stronę "obserwowane konta"
+    Zawiera listę obserwowanych kont oraz formularz do dodawania konta do listy obserwowanych
+    """
     http_method_names = ['get', 'post']
 
     def get(self, request):
@@ -113,6 +127,9 @@ class FollowingView(View):
 
 
 class UnfollowView(View):
+    """
+    Widok reprezentujący link do usunięcia konta z listy obserwowanych
+    """
     http_method_names = ['get']
 
     def get(self, request, aid: int):
@@ -120,66 +137,100 @@ class UnfollowView(View):
         return redirect('stats:following')
 
 
-def detail(request, aid: int, activity_date: date):
-    try:
-        account = Account.objects.get(pk=aid)
-    except Account.DoesNotExist:
-        request.session['account_not_exists'] = {'aid': aid, 'activity_date': activity_date.strftime("%Y-%m-%d")}
-        return redirect('stats:index')
+class DetailView(View):
+    """
+    Widok reprezentujący stronę szczegółowych statystyk dla danego konta i daty
+    Obsługuje:
+    - niepoprawne id konta - przekierowanie na stronę główną (wyszukiwania)
+    - niepoprawną datę - zwrócenie najnowszej (najstarszej, jeśli zaznaczono w formularzu) aktywności
+    - dodanie konta do listy obserwowanych, jeśli zaznaczono w formularzu oraz użytkownik jest zalogowany
+    """
+    http_method_names = ['get']
 
-    unauthenticated_follow_attempt = False
-    if request.session.get('follow', False):
-        request.session.pop('follow', None)
-        if request.user.is_authenticated:
-            Following.objects.get_or_create(user=request.user, account=account)
-        else:
-            unauthenticated_follow_attempt = True
-
-    characters = Character.objects.filter(account=account)
-    activity_query_set = Activity.objects.filter(character__account=account, date=activity_date)
-
-    real_activity_date = activity_date
-    if not activity_query_set.exists():
-        activity_query_set = Activity.objects.filter(character__account=account)
-
-        no_date_option = request.session.get("no_date_option", "last")
-        if no_date_option == 'first':
-            agg_func, agg_field = Min, 'date__min'
-        else:
-            agg_func, agg_field = Max, 'date__max'
-        request.session.pop('no_date_option', None)
-
-        real_activity_date = activity_query_set.aggregate(agg_func('date')).get(agg_field)
-        activity_query_set = activity_query_set.filter(date=real_activity_date)
-
-    character_activity_list = []
-    for character in characters:
+    def get(self, request, aid: int, activity_date: date):
         try:
-            activity = activity_query_set.get(character=character)
-        except Activity.DoesNotExist:
-            activity = None
-        character_activity_list.append((character, activity))
+            account = Account.objects.get(pk=aid)
+        except Account.DoesNotExist:
+            request.session['account_not_exists'] = {'aid': aid, 'activity_date': activity_date.strftime("%Y-%m-%d")}
+            return redirect('stats:index')
 
-    all_activity_dates = (
-        Activity.objects.filter(character__account=account)
-        .values_list('date', flat=True)
-        .distinct()
-        .order_by('date')
-    )
+        unauthenticated_follow_attempt = self.handle_follow(request, account)
+        real_activity_date, character_activity_list = self.get_activity(request, account, activity_date)
+        all_activity_dates = self.get_all_activity_dates(account)
 
-    context = {
-        'account': account,
-        'unauthenticated_follow_attempt': unauthenticated_follow_attempt,
-        'character_activity_list': character_activity_list,
-        'activity_date': activity_date,
-        'real_activity_date': real_activity_date,
-        'all_activity_dates': all_activity_dates
-    }
+        context = {
+            'account': account,
+            'unauthenticated_follow_attempt': unauthenticated_follow_attempt,
+            'character_activity_list': character_activity_list,
+            'activity_date': activity_date,
+            'real_activity_date': real_activity_date,
+            'all_activity_dates': all_activity_dates
+        }
 
-    return render(request, 'stats/detail.html', context)
+        return render(request, 'stats/detail.html', context)
+
+    @staticmethod
+    def handle_follow(request, account: Account):
+        unauthenticated_follow_attempt = False
+        if request.session.get('follow', False):
+            request.session.pop('follow', None)
+            if request.user.is_authenticated:
+                Following.objects.get_or_create(user=request.user, account=account)
+            else:
+                unauthenticated_follow_attempt = True
+        return unauthenticated_follow_attempt
+
+    @classmethod
+    def get_activity(cls, request, account: Account, activity_date: date):
+        characters = Character.objects.filter(account=account)
+        activity_query_set, real_activity_date = cls.get_activity_query_set(request, account, activity_date)
+        character_activity_list = cls.get_character_activity_list(characters, activity_query_set)
+        return real_activity_date, character_activity_list
+
+    @staticmethod
+    def get_activity_query_set(request, account: Account, activity_date: date):
+        activity_query_set = Activity.objects.filter(character__account=account, date=activity_date)
+
+        real_activity_date = activity_date
+        if not activity_query_set.exists():
+            activity_query_set = Activity.objects.filter(character__account=account)
+
+            no_date_option = request.session.get("no_date_option", "last")
+            if no_date_option == 'first':
+                agg_func, agg_field = Min, 'date__min'
+            else:
+                agg_func, agg_field = Max, 'date__max'
+            request.session.pop('no_date_option', None)
+
+            real_activity_date = activity_query_set.aggregate(agg_func('date')).get(agg_field)
+            activity_query_set = activity_query_set.filter(date=real_activity_date)
+        return activity_query_set, real_activity_date
+
+    @staticmethod
+    def get_character_activity_list(characters: QuerySet[Character], activity_query_set: QuerySet[Activity]):
+        character_activity_list = []
+        for character in characters:
+            try:
+                activity = activity_query_set.get(character=character)
+            except Activity.DoesNotExist:
+                activity = None
+            character_activity_list.append((character, activity))
+        return character_activity_list
+
+    @staticmethod
+    def get_all_activity_dates(account: Account):
+        return (
+            Activity.objects.filter(character__account=account)
+            .values_list('date', flat=True)
+            .distinct()
+            .order_by('date')
+        )
 
 
 class ExportAsXmlView(View):
+    """
+    Widok reprezentujący link do pobrania danych konta w formacie XML
+    """
     http_method_names = ['get']
     ACTIVITY_FORMAT = """<activity date="{}">\n\t{}</activity>"""
     CHARACTER_FORMAT = """<character><cid>{}</cid><world>{}</world>{}</character>"""
@@ -227,11 +278,6 @@ class RegistrationView(View):
 
     def get(self, request):
         context = self.get_context_data(request)
-
-        current_site = get_current_site(request)
-        site_name = current_site.name
-        domain = current_site.domain
-        print(site_name, domain)
         return render(request, 'registration/registration.html', context)
 
     def post(self, request):
@@ -248,6 +294,7 @@ class RegistrationView(View):
                 [user.email],
                 fail_silently=False,
             )
+            return redirect('stats:register_success')
 
         context = self.get_context_data(request, form)
         return render(request, 'registration/registration.html', context)
@@ -265,12 +312,15 @@ class RegistrationView(View):
         return f"http://{domain}/stats/accounts/activate/{uidb64}/{token}"
 
 
+def registration_success(request):
+    return render(request, 'registration/registration_success.html')
+
+
 class AccountActivationView(View):
     http_method_names = ['get']
     token_generator = PasswordResetTokenGenerator()
 
     def get(self, request, uidb64, token):
-        print(uidb64, token)
         user = self.get_user(uidb64)
 
         if user is not None:

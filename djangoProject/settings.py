@@ -121,5 +121,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'meno.stats@gmail.com'
-EMAIL_HOST_PASSWORD = 'kklojyyqqwbbwrbs'
+EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 587
